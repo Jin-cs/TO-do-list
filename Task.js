@@ -6,6 +6,9 @@ import Checkbox from "expo-checkbox";
 import { db } from "../Database/Firebase";
 import { doc, deleteDoc} from "firebase/firestore";
 
+
+
+
 /* สีต่างๆ */
 const textcolor = '#1B1C1E';
 const light_grey = '#f0f1f3';
@@ -20,6 +23,28 @@ const light_blue = '#8cc2f4';
 const Task = (props) => {
     const [isChecked, setChecked] = useState(false);
     const colorSelected = props.color;
+
+    //const db = getFirestore();
+
+    // const docRef = doc(db, "Task", "");
+   
+
+    // deleteDoc(docRef)
+    //  .then(() => {
+    //     console.log("Entire Document has been deleted successfully.")
+    // })
+    // .catch(error => {
+    //     console.log(error);
+    // })
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+        setRefreshing(false);
+    }, 2000);
+    }, []);
+
     
     return(
         <View style={[styles.box, {backgroundColor: colorSelected, borderRadius: 20}]}>
@@ -34,6 +59,7 @@ const Task = (props) => {
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     dateText: {
