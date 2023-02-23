@@ -4,9 +4,33 @@ import { useFonts } from 'expo-font';
 import { useNavigation } from '@react-navigation/native';
 import Task from './Components/Task';
 import { TouchableOpacity } from 'react-native';
+import { useEffect } from 'react';
+import {useState} from 'react';
+import { collection, getDocs} from "firebase/firestore";
+import { db } from './Database/Firebase';
 import { ScrollView } from 'react-native-gesture-handler';
 
+
+
 export default  function OpenTodo() {
+
+  const [todos, onChangeText] = useState([]);
+
+  const fetchPost = async () => {
+     
+      await getDocs(collection(db, "Task"))
+          .then((querySnapshot)=>{               
+              const newData = querySnapshot.docs
+                  .map((doc) => ({...doc.data(), id:doc.id }));                
+              console.log(todos, newData);
+              onChangeText(newData);
+          })
+     
+  }
+ 
+  useEffect(()=>{
+      fetchPost();
+  }, [])
 
   const [loaded] = useFonts({
     Poppins: require('./assets/fonts/Poppins-Medium.ttf'),
@@ -31,25 +55,24 @@ export default  function OpenTodo() {
 
       {/*ส่วน Container ของ body ที่จะใส่ task */}
       {/* <ScrollView> */}
+      
       <View style={styles.taskContainer}>
+        {/* <ScrollView> 
+        <View>*/}
         {/* <View style={styles={marginTop: 50,backgroundColor: 'transparent'}}></View> */}
-        <Task text={'Task 1'}/>
-        <Task text={'Task 2'}/>
-
-          <TouchableOpacity onPress={() => navigation.navigate('YourTaskPage', {})} style={styles.touchImage}>
-            <Image source={require("./assets/add.png")}
-              style={styles={
-                width: '17%',  
-                height: '17%', 
-                resizeMode: 'contain', 
-                position: "absolute", 
-                bottom: '25%', 
-                right: '10%',
-                }}
-              />
-          </TouchableOpacity>
+        {/* <Task text= 'Task 1'/>
+        <Task text= 'Task 2'/> */}
+        {todos?.map((todo,i)=>(
+          console.log(todo.Color),
+            <Task key={i} id={todo.id} color={todo.Color} text= {todo.Title} date={todo.Date.label + "/" + todo.Month.label + "/" + todo.Year.label}/>
+        ))}
+        {/*</View>
+         </ScrollView> */}
+        <TouchableOpacity onPress={() => navigation.navigate('YourTaskPage', {})} style={styles.touchImage}>
+            <Image source={require("./assets/add.png")} style={styles.imgLayout}/>
+        </TouchableOpacity>
+         
       </View>
-      {/* </ScrollView> */}
     </View>
   );
 }
@@ -86,10 +109,20 @@ const styles = StyleSheet.create({
   },
 
   touchImage: { 
+    width: '17%',
+    height: '17%',
+    position: 'absolute', 
+    bottom: '25%', 
+    right: '10%',
+  },
+
+  imgLayout: {
+    resizeMode: 'contain',
     width: '100%',
     height: '100%',
     position: "absolute", 
-    overflow: 'scroll',
+    // bottom: '25%', 
+    // right: '10%',
   }
 
 });

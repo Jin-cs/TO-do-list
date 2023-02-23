@@ -1,18 +1,45 @@
 import React, {useState} from 'react'
 import { View, Text, StyleSheet, Switch, TextInput, TouchableOpacity, Platform, StatusBar} from 'react-native'
+import * as Font from 'expo-font';
 import { SafeAreaView } from 'react-navigation';
 import Octicon from 'react-native-vector-icons/Octicons';
-/*  Add เพิ่ม */
 import { useNavigation } from '@react-navigation/native';
 import ColorPalette from 'react-native-color-palette'
 import DropDownPicker from 'react-native-dropdown-picker';
+import { collection, addDoc } from "firebase/firestore";
+import { db } from './Database/Firebase';
+import { useFonts } from 'expo-font';
+
 
 const YourTaskPage = () => {
+
+  const [text, onChangeText] = useState(' ');
+  
+
+  const addTodo = async () => {
+    //e.preventDefault();  
+   
+    try {
+        const docRef = await addDoc(collection(db, "Task"), {
+          Title: text,
+          Date:items[value -1],
+          Month:items2[value2 -1],
+          Year:items3[value3 -1],
+          Color:selectedColor,
+
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+}
+    
     const [isEnabled1, setIsEnabled1] = useState(false);
     const toggleSwitch1 = () => setIsEnabled1(previousState => !previousState);
 
     const [isEnabled2, setIsEnabled2] = useState(false);
     const toggleSwitch2 = () => setIsEnabled2(previousState => !previousState);
+  
 
     /* Set Date */
     const [open, setOpen] = useState(false);
@@ -84,6 +111,17 @@ const YourTaskPage = () => {
     /* Select Color */
     const [selectedColor, setSelectedColor] = useState('#CDD1D9');
     
+    const [loaded] = useFonts({
+      Poppins: require('./assets/fonts/Poppins-Medium.ttf'),
+      PoppinsRegular: require('./assets/fonts/Poppins-Regular.ttf'),
+      Outfit: require('./assets/fonts/Outfit-Bold.ttf'),
+      
+    });
+    
+      if(!loaded) {
+        return null;
+      }
+
     const navigation = useNavigation();
     
     return (
@@ -91,46 +129,56 @@ const YourTaskPage = () => {
         <View>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.navigate('OpenTodo', {})}>
-              <Text style={styles.headerButton}>Cancel</Text>
+              <Text style={[styles.headerButton, {fontFamily: 'PoppinsRegular'}]}>Cancel</Text>
             </TouchableOpacity>
 
-            <Text style={{fontWeight: 'bold', fontSize: 20}}>Your Task</Text>
+            <Text style={[styles.headText, {fontFamily: 'Outfit'}]}>Your Task</Text>
 
-            <TouchableOpacity onPress={() => navigation.navigate('OpenTodo', {})}>
-              <Text style={styles.headerButton}>Done</Text>
+
+            {/*done*/}
+            <TouchableOpacity onPress={() => 
+              {
+                addTodo();
+                //navigation.navigate('OpenTodo', {});
+            
+            }
+              }>
+              <Text style={[styles.headerButton, {fontFamily: 'PoppinsRegular'}]}>Done</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.inputView}>
+          {/*input*/}
+          <View style={styles.titleView}>
+            <Text style={[styles.headView, {alignSelf: 'flex-start', fontFamily: 'PoppinsRegular'}]}>Title</Text>
+            <View style={styles.inputView}>
             <TextInput
             style={styles.inputText}
-            placeholder="Add Title"
+            onChangeText={onChangeText}
+            value={text}
+            placeholder={"Add Title"}
             placeholderTextColor={'#C4C4C4'}
             />
+            </View>
           </View>
 
           <View style={styles.dateView}>
             <View style={{flex: 1,flexDirection: 'row',alignItems: 'center', alignSelf: 'flex-start', justifyContent: 'flex-start'}}>
-              <Text style={{flex:1, alignSelf: 'center', color: '#1B1C1E', opacity: 0.8, fontSize: 18}}>Date</Text>
+              <Text style={[styles.headView, {fontFamily: 'PoppinsRegular'}]}>Date</Text>
 
               {/* Switch of Date */}
-              <Switch
+              {/* <Switch
                 trackColor={{false: '#CDD1D9', true: '#1B1C1E'}}
                 thumbColor={isEnabled1 ? '#FFF' : '#FF F'}
                 onValueChange={toggleSwitch1}
                 value={isEnabled1}
                 style={{flex:1, alignSelf: 'flex-start', color: '#1B1C1E', opacity: 0.8}}
-              /> 
+              />  */}
             </View>
         
             <View style={{flex: 1, height: '5%', flexDirection: 'row',justifyContent: 'flex-start', alignItems: 'center',}}>
               {/* Dropdown Date --> แก้ logic เปิด-ปิด*/}
               <DropDownPicker
-                disabled={isEnabled1 && open}
-                disabledStyle={{
-                  opacity: 0.5
-                }}
-                open={isEnabled1 && open}
+                open={open}
                 value={value}
                 items={items}
                 setOpen={setOpen}
@@ -157,7 +205,7 @@ const YourTaskPage = () => {
                 disabledStyle={{
                   opacity: 0.5
                 }}
-                open={isEnabled1 && open2}
+                open={open2}
                 value={value2}
                 items={items2}
                 setOpen={setOpen2}
@@ -183,7 +231,7 @@ const YourTaskPage = () => {
                 disabledStyle={{
                   opacity: 0.5
                 }}
-                open={isEnabled1 && open3}
+                open={open3}
                 value={value3}
                 items={items3}
                 setOpen={setOpen3}
@@ -203,37 +251,21 @@ const YourTaskPage = () => {
                 }}
               />
           </View>
+        </View>
 
-          <View style={{flex: 1, flexDirection: 'row', alignSelf: 'flex-end', justifyContent: 'flex-end', alignItems: 'center'}}>
-          {/* <FontAwesome name="bell" size={18} color="#1B1C1E" style={{marginRight: 5}}/> */}
-            <Octicon name="bell-fill"
-                        size={18} 
-                        color="#1B1C1E"
-                        style={{marginRight: 5, opacity: 0.8}}/>
-            <Text style={{flex:1, color: '#1B1C1E', opacity: 0.8, fontSize: 16}}>Notification</Text>
-
-            {/* Switch of Notification */}
-            <Switch
-              trackColor={{false: '#CDD1D9', true: '#1B1C1E'}}
-              thumbColor={isEnabled2 ? '#FFF' : '#FF F'}
-              disabled={isEnabled1 == false}
-              onValueChange={toggleSwitch2}
-              value={isEnabled2 && isEnabled1}/> 
-          </View>
-        </View> 
 
         
-        <View style={styles.colorView}>
+          <View style={styles.colorView}>
           {/* Color palette */}
-          <ColorPalette
-            onChange={setSelectedColor}
-            value={selectedColor}
-            colors={['#CDD1D9', '#F7D28C', '#39DB8D', '#F65279', '#5BA9F0']}
-            title={'Color'}
-            titleStyles={{fontSize:18, color: '#1B1C1E', opacity: 0.8, alignSelf: 'flex-start'}}
-            icon={<Octicon name={'check'} size={18} color={'black'} />}
-          />
-        </View>
+            <ColorPalette
+              onChange={setSelectedColor}
+              value={selectedColor}
+              colors={['#CDD1D9', '#ffe084', '#74e5af', '#f997ae', '#8cc2f4']}
+              title={'Color'}
+              titleStyles={{fontSize:18, color: '#1B1C1E', opacity: 0.8, alignSelf: 'flex-start', fontFamily: 'PoppinsRegular'}}
+              icon={<Octicon name={'check'} size={18} color={'black'} />}
+            />
+          </View>
       </View>
     </SafeAreaView>
   );
@@ -253,7 +285,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     justifyContent: 'space-evenly',
-    flexDirection: 'row'  
+    flexDirection: 'row',
+    fontFamily: 'Outfit'
+  },
+
+  headText: {
+    fontFamily: 'Outfit',
+    fontWeight: 'bold', 
+    fontSize: 20,
   },
 
   headerButton:{
@@ -262,17 +301,41 @@ const styles = StyleSheet.create({
     opacity: 0.4
   },
 
-  inputView:{
-    width:"80%",
-    height:"10%",
+  headView: {
+    flex:1, 
+    alignSelf: 'center', 
+    color: '#1B1C1E', 
+    opacity: 0.8, 
+    fontSize: 18
+  },
+
+  titleView:{
+    // width:"80%",
+    // height:"25%",
+    width: '80%',
+    height: 135,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor:"#EEEFF2",
     borderRadius:15,
     marginBottom:15,
     justifyContent:"center",
-    padding:20,
+    padding: 20,
     alignSelf: 'center',
+    flexDirection: 'column'
+  },
+
+  inputView:{
+    width:"98%",
+    height:"10%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor:"#DBDDE1",
+    borderRadius:15,
+    marginBottom:15,
+    justifyContent:"center",
+    padding: 20,
+    alignSelf: 'center'
   },
 
   inputText:{
