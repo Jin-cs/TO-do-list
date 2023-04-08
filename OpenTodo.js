@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import {useState} from 'react';
 import { collection, getDocs} from "firebase/firestore";
 import { db } from './Database/Firebase';
-import { ScrollView } from 'react-native-gesture-handler';
+
 
 
 
@@ -63,8 +63,8 @@ export default  function OpenTodo() {
         {/* <Task text= 'Task 1'/>
         <Task text= 'Task 2'/> */}
         {todos?.map((todo,i)=>(
-          console.log(todo.Color),
-            <Task key={i} id={todo.id} color={todo.Color} text= {todo.Title} date={todo.Date.label + "/" + todo.Month.label + "/" + todo.Year.label}/>
+          console.log(todo),
+            <Task id={todo.id} key={i} color={todo.Color} text= {todo.Title} date={todo.Date.label + "/" + todo.Month.label + "/" + todo.Year.label}/>
         ))}
         {/*</View>
          </ScrollView> */}
