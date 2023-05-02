@@ -8,7 +8,6 @@ import { doc, deleteDoc} from "firebase/firestore";
 
 
 
-
 /* สีต่างๆ */
 const textcolor = '#1B1C1E';
 const light_grey = '#f0f1f3';
@@ -23,6 +22,10 @@ const light_blue = '#8cc2f4';
 const Task = (props) => {
     const [isChecked, setChecked] = useState(false);
     const colorSelected = props.color;
+
+
+
+
 
     //const db = getFirestore();
 
@@ -51,6 +54,7 @@ const Task = (props) => {
             <Checkbox style={styles.checkbox} value={isChecked} onTouchEnd = {async()=>{
                 console.log(props.id);
                 await deleteDoc(doc(db, "Task", props.id));   
+                
             }} 
                 onValueChange={setChecked} color={isChecked ? /*เปลี่ยนสีตอน check*/textcolor : undefined}
                 />
@@ -59,6 +63,7 @@ const Task = (props) => {
         </View>
     )
 }
+
 
 
 const styles = StyleSheet.create({
