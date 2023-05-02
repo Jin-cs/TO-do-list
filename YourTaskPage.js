@@ -9,11 +9,34 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { collection, addDoc } from "firebase/firestore";
 import { db } from './Database/Firebase';
 import { useFonts } from 'expo-font';
+import * as Notifications from "expo-notifications";
 
 
 const YourTaskPage = () => {
 
   const [text, onChangeText] = useState(' ');
+
+  async function schedulePushNotification(text) {
+    const now = new Date();
+    var y =  items3[value3 - 1].label;
+    var m = "0" + value2;
+    var d = items[value - 1].label.length == 2  ? items[value - 1].label.length == 2  : "0"+items[value - 1].label;
+    const Datebase = new Date(`${y}-${m}-${d}`);
+
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: text + "📬",
+        body: items[value - 1].label + " " + items2[value2 - 1].label+ " " +items3[value3 - 1].label,
+        data: { data: 'goes here' },
+      },
+      trigger: { seconds: Math.floor(Datebase.getTime() / 1000) - Math.floor(now.getTime() / 1000) },
+    }).then((v)=>{
+        console.log(Math.floor(Datebase.getTime() / 1000) - Math.floor(now.getTime() / 1000));
+        console.log("ok");
+        console.log(v);
+    }).catch((e)=>{console.log(e);});
+  }
   
 
   const addTodo = async () => {
@@ -28,6 +51,7 @@ const YourTaskPage = () => {
           Color:selectedColor,
 
         });
+        schedulePushNotification(text);
         console.log("Document written with ID: ", docRef.id);
       } catch (e) {
         console.error("Error adding document: ", e);
